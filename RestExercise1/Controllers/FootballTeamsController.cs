@@ -38,16 +38,32 @@ namespace RestExercise1.Controllers
 
         // POST api/<FootballTeamsController>
         [HttpPost]
-        public FootballTeam Post([FromBody] FootballTeam newTeam)
+        public ActionResult<FootballTeam> Post([FromBody] FootballTeamDTO newTeam)
         {
-            return _repository.AddTeam(newTeam);
+            try
+            {
+                FootballTeam team = ConvertDTOToFootballTeam(newTeam);
+                return _repository.AddTeam(team);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.ToString());
+            }
         }
 
 
         [HttpPut("{id}")]
-        public FootballTeam Put(int id, [FromBody] FootballTeam value)
+        public ActionResult<FootballTeam> Put(int id, [FromBody] FootballTeamDTO value)
         {
-            return _repository.UpdateTeam(id, value);
+            try
+            {
+                FootballTeam team = ConvertDTOToFootballTeam(value);
+                return _repository.UpdateTeam(id, team);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         // DELETE api/<FootballTeamsController>/5
@@ -55,6 +71,11 @@ namespace RestExercise1.Controllers
         public FootballTeam Delete(int id)
         {
             return _repository.DeleteTeam(id);
+        }
+
+        private FootballTeam ConvertDTOToFootballTeam(FootballTeamDTO dto) {      
+            FootballTeam team = new FootballTeam() { League = dto.League, Name = dto.Name};
+            return team;
         }
     }
 }
