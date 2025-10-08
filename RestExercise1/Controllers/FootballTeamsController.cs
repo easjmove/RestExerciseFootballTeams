@@ -1,4 +1,5 @@
 ﻿using FootballTeamLib;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -18,7 +19,7 @@ namespace RestExercise1.Controllers
 
         // GET: api/<FootballTeamsController>
         [HttpGet]
-        public IEnumerable<FootballTeam> Get()
+        public IEnumerable<FootballTeam> GetAll()
         {
             return _repository.GetAllTeams();
         }
@@ -37,13 +38,19 @@ namespace RestExercise1.Controllers
         }
 
         // POST api/<FootballTeamsController>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
         public ActionResult<FootballTeam> Post([FromBody] FootballTeamDTO newTeam)
         {
             try
             {
                 FootballTeam team = ConvertDTOToFootballTeam(newTeam);
-                return _repository.AddTeam(team);
+                _repository.AddTeam(team);
+                
+                //return Created("/" + team.Id, team); 
+                return CreatedAtAction(nameof(Get), new { id = team.Id }, team);
+
             }
             catch (ArgumentOutOfRangeException ex)
             {
@@ -55,6 +62,12 @@ namespace RestExercise1.Controllers
             }
         }
 
+        [HttpOptions]
+        public ActionResult Options()
+        {
+            //Response.Headers.Add("Allow", "GET,POST,PUT,DELETE,OPTIONS");
+            return NoContent();
+        }
 
         [HttpPut("{id}")]
         public ActionResult<FootballTeam> Put(int id, [FromBody] FootballTeamDTO value)
