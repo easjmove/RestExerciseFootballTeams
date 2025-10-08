@@ -45,6 +45,10 @@ namespace RestExercise1.Controllers
                 FootballTeam team = ConvertDTOToFootballTeam(newTeam);
                 return _repository.AddTeam(team);
             }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return BadRequest(ex.ToString());
+            }
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.ToString());
@@ -74,7 +78,8 @@ namespace RestExercise1.Controllers
         }
 
         private FootballTeam ConvertDTOToFootballTeam(FootballTeamDTO dto) {      
-            FootballTeam team = new FootballTeam() { League = dto.League, Name = dto.Name};
+            if (dto.Year == null) throw new ArgumentOutOfRangeException("Year cannot be null");
+            FootballTeam team = new FootballTeam() { League = dto.League, Name = dto.Name, Year = dto.Year.Value};
             return team;
         }
     }
