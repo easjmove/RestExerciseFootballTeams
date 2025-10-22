@@ -1,4 +1,3 @@
-
 using FootballTeamLib;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +19,16 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddSingleton<FootballRepo>(new FootballRepo());
+
+bool useSql = false;
+if (useSql)
+{
+    builder.Services.AddSingleton<IFootballRepo>(new FootBallRepoDB());
+}
+else
+{
+    builder.Services.AddSingleton<IFootballRepo>(new FootballRepoList());
+}
 
 var app = builder.Build();
 

@@ -10,24 +10,31 @@ namespace RestExercise1.Controllers
     [ApiController]
     public class FootballTeamsController : ControllerBase
     {
-        private FootballRepo _repository;
+        private IFootballRepo _repository;
 
-        public FootballTeamsController(FootballRepo repo)
+        public FootballTeamsController(IFootballRepo repo)
         {
             _repository = repo;
         }
 
-        // GET: api/<FootballTeamsController>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [HttpGet]
-        public IEnumerable<FootballTeam> GetAll()
+        public ActionResult<IEnumerable<FootballTeam>> GetAll(
+            [FromQuery]string? nameFilter, [FromQuery] string? leagueFilter)
         {
-            return _repository.GetAllTeams();
+            List<FootballTeam> teams = _repository.GetAllTeams(nameFilter, leagueFilter);
+            if (teams.Count() == 0)
+            {
+                return NoContent();
+            }
+            return Ok(teams);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")]
-        public ActionResult<FootballTeam> Get(int id)
+        public ActionResult<FootballTeam> Get([FromRoute]int id)
         {
             FootballTeam? team = _repository.GetTeamById(id);
             if (team == null)
